@@ -1,0 +1,4 @@
+package triangula
+
+class SolverSuite {
+}
