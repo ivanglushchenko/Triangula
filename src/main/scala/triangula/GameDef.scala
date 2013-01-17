@@ -3,6 +3,9 @@ package triangula
 import scala.collection.immutable._
 import scala.collection.immutable.Map
 
+/**
+ * Contains game components/logic.
+ */
 trait GameDef {
 	sealed abstract class Player
 	case object Player1 extends Player {
@@ -15,12 +18,18 @@ trait GameDef {
 		override def toString() = "?"
 	}
 	
+	/**
+	 * Represents a single point on a board.  
+	 */
 	case class Pos(x: Int, y: Int){
 		def -(t: Pos): (Int, Int) = (t.x - x, t.y - y)
 		def <(t: Pos): Boolean = x < t.x || (x == t.x && y < t.y)
 		def >(t: Pos): Boolean = x > t.x || (x == t.x && y > t.y)
 	}
 	
+	/**
+	 * Represents a single edge on a board.
+	 */
 	case class Edge(from: Pos, to: Pos){
 		def intersect(e: Edge): Boolean = 
 			if ((from == e.from && to == e.to) || (from == e.to && to == e.from)) true
@@ -62,6 +71,9 @@ trait GameDef {
 		def isSame(e: Edge) = (from == e.from && to == e.to) || (from == e.to && to == e.from)
 	}
 	
+	/**
+	 * Represents a single triangle on a board.
+	 */
 	case class Triangle(p1: Pos, p2: Pos, p3: Pos, player: Player){
 		val area = {
 			def length(p1: Pos, p2: Pos): Double = math.sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y))
@@ -112,6 +124,11 @@ trait GameDef {
 			
 	lazy val edgesIndices = allEdges.map(t => (t, allEdges.indexOf(t))) toMap
 	
+	/**
+	 * Gets a "canonical" representation of a triangle. The idea: given 3 points A,B,C you
+	 * can define a triangle in 6 different ways: ABC, ACB,  CBA, and so on. This function
+	 * returns triangle ABC for any of the combinations of points.  
+	 */
 	def getTriangle(p1: Pos, p2: Pos, p3:Pos, p: Player): Triangle = {
 		val s1 = 
 			if (p1 < p2 && p1 < p3) p1
@@ -143,6 +160,9 @@ trait GameDef {
 	
 	lazy val trianglesIndices = allTriangles.map(t => (t, allTriangles.indexOf(t))) toMap
 	
+	/**
+	 * Gets symmetrical edges according to a given mapping.
+	 */
 	def generateSymmetricEdgeMappings(symmetryMapping: Pos => Pos): scala.collection.immutable.Map[Int, Int] = {
 		val allPointSymm = allPoints.map(p => (p, symmetryMapping(p))) toMap
 		val allEdgesSymm = allEdges.map(p => {
@@ -158,6 +178,9 @@ trait GameDef {
 		allEdgesSymm.map(t => (edgesIndices(t._1), edgesIndices(t._2)))
 	}
 	
+	/**
+	 * Gets symmetrical triangles according to a given mapping.
+	 */
 	def generateSymmetricTriangleMappings(symmetryMapping: Pos => Pos): scala.collection.immutable.Map[Int, Int] = {
 		val allPointSymm = allPoints.map(p => (p, symmetryMapping(p))) toMap
 		val indices = allTriangles.map(t => {
@@ -189,6 +212,9 @@ trait GameDef {
 	lazy val trianglesIndicesSymm6 = generateSymmetricTriangleMappings(p => Pos(height - p.y + 1, p.x))
 	lazy val trianglesIndicesSymm7 = generateSymmetricTriangleMappings(p => Pos(width - p.x + 1, height - p.y + 1))
 	
+	/**
+	 * These are all classes of symmetry the solver checks for during pruning.
+	 */
 	lazy val symmetries = List(
 			(edgesIndicesSymm0, trianglesIndicesSymm0),
 			(edgesIndicesSymm1, trianglesIndicesSymm1),
@@ -205,10 +231,16 @@ trait GameDef {
 			f(res.head)
 	}
 	
+	/**
+	 * Represents game board.
+	 */
 	class Board(val nextPlayer: Player, val points: List[Pos], val edges: List[Edge], val triangles: List[Triangle], val hashEdges: List[Int], val hashTriangles: List[Int], val parentBoard: Board) {
 		var parents = if (parentBoard == null) List() else List(parentBoard)
 		var children: List[Board] = List()
 
+		/**
+		 * Creates a new board by adding an edge to current board. 
+		 */
 		def extend(e: Edge): Board = {
 			if (isValidEdge(e) == false) throw new Exception("invalid edge")
 			else {
@@ -230,8 +262,14 @@ trait GameDef {
 			}
 		}
 		
+		/**
+		 * Checks if a given edge can be added to current board.
+		 */
 		def isValidEdge(e: Edge): Boolean = points.forall(p => !e.contains(p)) && (if (edges.isEmpty) true else edges.forall(t => !t.intersect(e)))
 		
+		/**
+		 * Checks if a given edge forms a triangle if placed on the board.
+		 */
 		def formsTriangle(e: Edge): Boolean = !pointsFormingTriangle(e).isEmpty
 		
 		def pointsFormingTriangle(e: Edge): List[Pos] = {
@@ -260,6 +298,9 @@ trait GameDef {
 			!edgesFormingTriangles.isEmpty
 		}
 		
+		/**
+		 * Gets all valid edges which can be placed on the board.
+		 */
 		lazy val nextEdges: List[Edge] = {
 			// for empty boards the set of open edges is reduced because of different types of symmetries
 			if (width == 2 && height == 2 && edges.isEmpty) List(Edge(Pos(1, 1), Pos(1, 2)), Edge(Pos(1, 1), Pos(2, 2)))
@@ -279,6 +320,9 @@ trait GameDef {
 			}
 		}
 		
+		/**
+		 * Gets all boards which can be generated from current board.
+		 */
 		lazy val nextBoards: List[Board] = {
 			val allNextBoards = nextEdges map extend
 			val p = allNextBoards.partition(_.hasTwoSideTriangles)
@@ -290,6 +334,9 @@ trait GameDef {
 			children
 		}
 		
+		/**
+		 * Gets scores - number of winning boards for each player.
+		 */
 		lazy val scores: scala.collection.immutable.Map[Player, Int] = {
 			if (isCompleted) {
 				if (player1Area > player2Area) List((Player1, 1), (Player2, 0), (PlayerUnknown, 0)) toMap
@@ -304,6 +351,9 @@ trait GameDef {
 			}
 		}
 		
+		/**
+		 * Gets area occupied by a given player.
+		 */
 		def getArea(p: Player) = 
 			if (triangles.isEmpty) 0
 			else math.ceil(100 * triangles.filter(t => t.player == p).map(t => t.area).sum / ((width - 1) * (height - 1)))

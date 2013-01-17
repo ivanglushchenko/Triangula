@@ -7,10 +7,15 @@ import scala.swing.{MainFrame, Panel}
 import scala.swing.event._
 import java.awt.{Color, Graphics2D, Point, geom}
 
-
+/**
+ * Contains logic for solving the puzzle. 
+ */
 trait Solver extends GameDef {
 	lazy val startingBoard: Board = Board.Board()
 	
+	/**
+	 * Gets boards generated from the given list of boards.
+	 */
 	def nextBoards(boards: List[Board]): List[Board] = {
 		val list = (for {
 			board <- boards
@@ -20,6 +25,9 @@ trait Solver extends GameDef {
 		removeSymmetricalBoards(list)
 	}
 	
+	/**
+	 * Prunes symmetrical boards.
+	 */
 	def removeSymmetricalBoards(list: List[Board]): List[Board] = {
 		def isSmaller(l1: List[Int], l2: List[Int]): Boolean = {
 			if (l1.isEmpty) false
@@ -59,6 +67,9 @@ trait Solver extends GameDef {
 		applyNextSymmetry(list, symmetries)
 	}
 	
+	/**
+	 * Generates a stream of boards.
+	 */
 	def next(boards: List[Board]): Stream[Board] = {
 		if (boards.isEmpty) Stream.Empty
 		else {
@@ -74,8 +85,14 @@ trait Solver extends GameDef {
 		}
 	}
 	
+	/**
+	 * A stream of all possible boards.
+	 */
 	lazy val allBoardsStream: Stream[Board] = next(startingBoard.nextBoards)
 	
+	/**
+	 * A stream of all completed boards.
+	 */
 	lazy val allCompletedBoardsStream = allBoardsStream filter (_.isCompleted)
 	
 	lazy val allCompletedBoards = {
@@ -86,8 +103,14 @@ trait Solver extends GameDef {
 		boards
 	}
 	
+	/**
+	 * Simple UI for showing boards and scores.
+	 */
 	lazy val ui = new Panel {
-		var allBoardsToDraw = List(startingBoard.children.take(100))
+		var allBoardsToDraw = {
+		  allCompletedBoards
+		  List(startingBoard.children.take(100))
+		}
 		def boardsToDraw = allBoardsToDraw.head
 		
 		background = Color.white
