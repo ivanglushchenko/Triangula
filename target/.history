@@ -1,0 +1,8 @@
+compile
+test
+compile
+sbt reload update
+quit
+compile
+compile -deprecation
+compile
