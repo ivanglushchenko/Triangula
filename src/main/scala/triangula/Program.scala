@@ -105,12 +105,12 @@ object Program extends SimpleSwingApplication  {
 		assert(b2 formsTriangle (Edge(Pos(1, 1), Pos(2, 1))), false)
 		
 		val b3 = startingBoard extend (Edge(Pos(1, 2), Pos(3, 3))) extend (Edge(Pos(2, 1), Pos(3, 3))) extend (Edge(Pos(1, 2), Pos(2, 1)))
-		assert(b3.triangles.first contains Pos(2, 2), true)
-		assert(b3.triangles.first contains Pos(2, 1), false)
-		assert(b3.triangles.first contains Pos(1, 2), false)
-		assert(b3.triangles.first contains Pos(3, 3), false)
-		assert(b3.triangles.first contains Pos(1, 1), false)
-		assert(b3.triangles.first contains Pos(3, 1), false)
+		assert(b3.triangles.head contains Pos(2, 2), true)
+		assert(b3.triangles.head contains Pos(2, 1), false)
+		assert(b3.triangles.head contains Pos(1, 2), false)
+		assert(b3.triangles.head contains Pos(3, 3), false)
+		assert(b3.triangles.head contains Pos(1, 1), false)
+		assert(b3.triangles.head contains Pos(3, 1), false)
 		assert(b3.points.length, 8)
 
 		assert(startingBoard.nextBoards.length, 4)

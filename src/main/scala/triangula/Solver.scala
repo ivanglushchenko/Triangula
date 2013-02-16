@@ -46,13 +46,13 @@ trait Solver extends GameDef {
 		}
 		
 		def compactify(l: List[Board], symMap1: scala.collection.immutable.Map[Int, Int], symMap2: scala.collection.immutable.Map[Int, Int]): List[Board] = {
-			val sets = l groupBy(t => getLowerSymmHash(t.hashEdges, t.hashTriangles, symMap1, symMap2)) map(t => t._2.sort((b1, b2) => isSmaller(b1.hashEdges, b2.hashEdges))) toList
+			val sets = l groupBy(t => getLowerSymmHash(t.hashEdges, t.hashTriangles, symMap1, symMap2)) map(t => t._2.sortWith((b1, b2) => isSmaller(b1.hashEdges, b2.hashEdges))) toList
 
 			for { symBoards <- sets; if !symBoards.tail.isEmpty } {
 				for { boardToBeRemoved <- symBoards.tail} {
 					symBoards.head.parents = boardToBeRemoved.parents ::: symBoards.head.parents
 					for { affectedParent <- boardToBeRemoved.parents} {
-						affectedParent.children = symBoards.head :: (affectedParent.children - boardToBeRemoved)
+						affectedParent.children = symBoards.head :: (affectedParent.children.filterNot(b => b == boardToBeRemoved))// - boardToBeRemoved)
 					}
 				}
 			}
@@ -73,7 +73,7 @@ trait Solver extends GameDef {
 	def next(boards: List[Board]): Stream[Board] = {
 		if (boards.isEmpty) Stream.Empty
 		else {
-			val l = boards.first.edges.length + 1
+			val l = boards.head.edges.length + 1
 			println("..generating " + l.toString + "-edge boards")
 
 			val list = nextBoards(boards)
@@ -114,14 +114,14 @@ trait Solver extends GameDef {
 		def boardsToDraw = allBoardsToDraw.head
 		
 		background = Color.white
-		preferredSize = (900,900)
+		preferredSize = (400,400)
 		focusable = true
 		
 		val horOffset = 0
 		val verOffset = 0
 		val margin = 1;
 		
-		def dim = math.sqrt(boardsToDraw.length).toInt + 1
+		def dim = math.sqrt(boardsToDraw.length).toInt
 		def iRows = (for { i <- (0 until dim)} yield i) toList
 		def iColumns = (for { i <- (0 until dim)} yield i) toList
 		
@@ -220,6 +220,7 @@ trait Solver extends GameDef {
 					}
 				}
 			}
+			
 		}
 	}
 }
