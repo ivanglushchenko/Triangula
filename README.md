@@ -25,6 +25,6 @@ There are only 4 unique starting boards in a 3x3 game:
 
 ![](/images/t2.png)
 
-The player 1 won this partucular game:
+Player 1 won this partucular game:
 
 ![](/images/t3.png)
