@@ -12,7 +12,7 @@ object Program extends SimpleSwingApplication  {
 	
 	def assert[T](desc: String, t1: => T, t2: T) = if (t1 == t2) () else println(desc +" test failed: " + t1.toString + " is not the same as " + t2.toString)
 	
-	object Board2By2 extends Solver {
+	object Board2By2 extends SolverUI {
 		val width = 2
 		val height = 2
 		
@@ -77,7 +77,7 @@ object Program extends SimpleSwingApplication  {
 		println(allCompletedBoards.length)
 	}
 	
-	object Board3By3 extends Solver {
+	object Board3By3 extends SolverUI {
 		val width = 3
 		val height = 3
 		

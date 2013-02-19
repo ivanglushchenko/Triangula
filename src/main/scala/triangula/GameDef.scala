@@ -7,103 +7,6 @@ import scala.collection.immutable.Map
  * Contains game components/logic.
  */
 trait GameDef {
-	sealed abstract class Player
-	case object Player1 extends Player {
-		override def toString() = "x"
-	}
-	case object Player2 extends Player {
-		override def toString() = "o"
-	}
-	case object PlayerUnknown extends Player {
-		override def toString() = "?"
-	}
-	
-	/**
-	 * Represents a single point on a board.  
-	 */
-	case class Pos(x: Int, y: Int){
-		def -(t: Pos): (Int, Int) = (t.x - x, t.y - y)
-		def <(t: Pos): Boolean = x < t.x || (x == t.x && y < t.y)
-		def >(t: Pos): Boolean = x > t.x || (x == t.x && y > t.y)
-	}
-	
-	/**
-	 * Represents a single edge on a board.
-	 */
-	case class Edge(from: Pos, to: Pos){
-		def intersect(e: Edge): Boolean = 
-			if ((from == e.from && to == e.to) || (from == e.to && to == e.from)) true
-			else if ((from == e.from && to != e.to) || (from != e.from && to == e.to) || (from == e.to && to != e.from) || (from != e.to && to == e.from)) false
-			else {
-				if (to.x != from.x) {
-					val t2 = ((e.from.y - from.y) * (to.x - from.x) - (e.from.x - from.x) * (to.y - from.y)).toFloat / ((e.to.x - e.from.x) * (to.y - from.y) - (e.to.y - e.from.y) * (to.x - from.x)).toFloat
-					val t1 = ((e.to.x - e.from.x) * t2 + e.from.x - from.x).toFloat / (to.x - from.x).toFloat
-					t2 >=0 && t2 <= 1 && t1 >= 0 && t1 <= 1
-				}
-				else {
-					val t2 = ((e.from.x - from.x) * (to.y - from.y) - (e.from.y - from.y) * (to.x - from.x)).toFloat / ((e.to.y - e.from.y) * (to.x - from.x) - (e.to.x - e.from.x) * (to.y - from.y)).toFloat
-					val t1 = ((e.to.y - e.from.y) * t2 + e.from.y - from.y).toFloat / (to.y - from.y).toFloat
-					t2 >=0 && t2 <= 1 && t1 >= 0 && t1 <= 1
-				}
-			}
-		
-		def contains(p: Pos): Boolean =
-			if (p == from || p == to) false
-			else {
-				if (to.x != from.x) {
-					val t = (p.x - from.x).toFloat / (to.x - from.x).toFloat
-					if (t > 1 || t < 0) false
-					else {
-						val y = (to.y - from.y) * t + from.y
-						math.abs(y - p.y) < 0.00001
-					}
-				} else {
-					val t = (p.y - from.y).toFloat / (to.y - from.y).toFloat
-					if (t > 1 || t < 0) false
-					else {
-						val x = (to.x - from.x) * t + from.x
-						if (math.abs(x - p.x) < 0.00001) true
-						else false
-					}
-				}
-			}
-		
-		def isSame(e: Edge) = (from == e.from && to == e.to) || (from == e.to && to == e.from)
-	}
-	
-	/**
-	 * Represents a single triangle on a board.
-	 */
-	case class Triangle(p1: Pos, p2: Pos, p3: Pos, player: Player){
-		val area = {
-			def length(p1: Pos, p2: Pos): Double = math.sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y))
-			val l1 = length(p1, p2)
-			val l2 = length(p2, p3)
-			val l3 = length(p1, p3)
-			val s = (l1 + l2 + l3) / 2.0
-			math.sqrt(s * (s - l1) * (s - l2) * (s - l3))
-		}
-		
-		def dot(v1: (Int, Int), v2: (Int, Int)): Double = v1._1 * v2._1 + v1._2 * v2._2
-		
-		def contains(p: Pos): Boolean = {
-			val v0 = p2 - p1
-			val v1 = p3 - p1
-			val v2 = p  - p1
-			val dot00 = dot(v0, v0)
-			val dot01 = dot(v0, v1)
-			val dot02 = dot(v0, v2)
-			val dot11 = dot(v1, v1)
-			val dot12 = dot(v1, v2)			
-			val invDenom = 1 / (dot00 * dot11 - dot01 * dot01)
-			val u = (dot11 * dot02 - dot01 * dot12) * invDenom
-			val v = (dot00 * dot12 - dot01 * dot02) * invDenom
-			(u > 0) && (v > 0) && (u + v < 1)
-		}
-	}
-	
-	type Map = Pos => Player
-	
 	val width: Int
 	val height: Int
 	
@@ -193,43 +96,19 @@ trait GameDef {
 		
 		indices toMap
 	}
-		
-	lazy val edgesIndicesSymm0 = generateSymmetricEdgeMappings(p => p)
-	lazy val edgesIndicesSymm1 = generateSymmetricEdgeMappings(p => Pos(p.y, p.x))
-	lazy val edgesIndicesSymm2 = generateSymmetricEdgeMappings(p => Pos(width - p.x + 1, p.y))
-	lazy val edgesIndicesSymm3 = generateSymmetricEdgeMappings(p => Pos(p.x, height - p.y + 1))
-	lazy val edgesIndicesSymm4 = generateSymmetricEdgeMappings(p => Pos(height - p.y + 1, width - p.x + 1))
-	lazy val edgesIndicesSymm5 = generateSymmetricEdgeMappings(p => Pos(p.y, width - p.x + 1))
-	lazy val edgesIndicesSymm6 = generateSymmetricEdgeMappings(p => Pos(height - p.y + 1, p.x))
-	lazy val edgesIndicesSymm7 = generateSymmetricEdgeMappings(p => Pos(width - p.x + 1, height - p.y + 1))
-		
-	lazy val trianglesIndicesSymm0 = generateSymmetricTriangleMappings(p => p)
-	lazy val trianglesIndicesSymm1 = generateSymmetricTriangleMappings(p => Pos(p.y, p.x))
-	lazy val trianglesIndicesSymm2 = generateSymmetricTriangleMappings(p => Pos(width - p.x + 1, p.y))
-	lazy val trianglesIndicesSymm3 = generateSymmetricTriangleMappings(p => Pos(p.x, height - p.y + 1))
-	lazy val trianglesIndicesSymm4 = generateSymmetricTriangleMappings(p => Pos(height - p.y + 1, width - p.x + 1))
-	lazy val trianglesIndicesSymm5 = generateSymmetricTriangleMappings(p => Pos(p.y, width - p.x + 1))
-	lazy val trianglesIndicesSymm6 = generateSymmetricTriangleMappings(p => Pos(height - p.y + 1, p.x))
-	lazy val trianglesIndicesSymm7 = generateSymmetricTriangleMappings(p => Pos(width - p.x + 1, height - p.y + 1))
 	
 	/**
 	 * These are all classes of symmetry the solver checks for during pruning.
 	 */
 	lazy val symmetries = List(
-			(edgesIndicesSymm0, trianglesIndicesSymm0),
-			(edgesIndicesSymm1, trianglesIndicesSymm1),
-			(edgesIndicesSymm2, trianglesIndicesSymm2),
-			(edgesIndicesSymm3, trianglesIndicesSymm3),
-			(edgesIndicesSymm4, trianglesIndicesSymm4),
-			(edgesIndicesSymm5, trianglesIndicesSymm5),
-			(edgesIndicesSymm6, trianglesIndicesSymm6),
-			(edgesIndicesSymm7, trianglesIndicesSymm7))
-			
-	def onDebug(l: List[Board])(f: Board => Unit) {
-		val res = l.filter(b => b.toString() == "Board: List(Edge(Pos(1,2),Pos(2,3)), Edge(Pos(1,1),Pos(2,2)))")
-		if (!res.isEmpty)
-			f(res.head)
-	}
+			(generateSymmetricEdgeMappings(p => p),                                      generateSymmetricTriangleMappings(p => p)),
+			(generateSymmetricEdgeMappings(p => Pos(p.y, p.x)),                          generateSymmetricTriangleMappings(p => Pos(p.y, p.x))),
+			(generateSymmetricEdgeMappings(p => Pos(width - p.x + 1, p.y)),              generateSymmetricTriangleMappings(p => Pos(width - p.x + 1, p.y))),
+			(generateSymmetricEdgeMappings(p => Pos(p.x, height - p.y + 1)),             generateSymmetricTriangleMappings(p => Pos(p.x, height - p.y + 1))),
+			(generateSymmetricEdgeMappings(p => Pos(height - p.y + 1, width - p.x + 1)), generateSymmetricTriangleMappings(p => Pos(height - p.y + 1, width - p.x + 1))),
+			(generateSymmetricEdgeMappings(p => Pos(p.y, width - p.x + 1)),              generateSymmetricTriangleMappings(p => Pos(p.y, width - p.x + 1))),
+			(generateSymmetricEdgeMappings(p => Pos(height - p.y + 1, p.x)),             generateSymmetricTriangleMappings(p => Pos(height - p.y + 1, p.x))),
+			(generateSymmetricEdgeMappings(p => Pos(width - p.x + 1, height - p.y + 1)), generateSymmetricTriangleMappings(p => Pos(width - p.x + 1, height - p.y + 1))))
 	
 	/**
 	 * Represents game board.
@@ -375,5 +254,13 @@ trait GameDef {
 		}
 	}
 	
+	def onDebug(l: List[Board])(f: Board => Unit) {
+		val res = l.filter(b => b.toString() == "Board: List(Edge(Pos(1,2),Pos(2,3)), Edge(Pos(1,1),Pos(2,2)))")
+		if (!res.isEmpty)
+			f(res.head)
+	}
+	
 	val startingBoard: Board
+	
+	//val allCompletedBoards: List[Board]
 }
