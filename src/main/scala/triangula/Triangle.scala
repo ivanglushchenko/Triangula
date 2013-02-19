@@ -29,4 +29,31 @@ case class Triangle(p1: Pos, p2: Pos, p3: Pos, player: Player){
 		val v = (dot00 * dot12 - dot01 * dot02) * invDenom
 		(u > 0) && (v > 0) && (u + v < 1)
 	}
+	
+	def map(mappings: Map[Pos, Pos]): Triangle =
+		Triangle.getCanonicalTriangle(mappings(p1), mappings(p2), mappings(p3), player)
+}
+
+object Triangle {
+	/**
+	 * Gets a "canonical" representation of a triangle. The idea: given 3 points A,B,C you
+	 * can define a triangle in 6 different ways: ABC, ACB,  CBA, and so on. This function
+	 * returns triangle ABC for any of the combinations of points.  
+	 */
+	def getCanonicalTriangle(p1: Pos, p2: Pos, p3:Pos, p: Player): Triangle = {
+		val s1 = 
+			if (p1 < p2 && p1 < p3) p1
+			else if (p2 < p1 && p2 < p3) p2
+			else p3
+		val s3 = 
+			if (p1 > p2 && p1 > p3) p1
+			else if (p2 > p1 && p2 > p3) p2
+			else p3		
+		val s2 = 
+			if (p1 != s1 && p1 != s3) p1
+			else if (p2 != s1 && p2 != s3) p2
+			else p3
+		if (s1 == s2 || s1 == s3 || s2 == s3) throw new Exception("bad triangle")
+		new Triangle(s1, s2, s3, p)
+	}
 }

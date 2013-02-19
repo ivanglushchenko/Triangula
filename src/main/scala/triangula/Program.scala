@@ -13,8 +13,7 @@ object Program extends SimpleSwingApplication  {
 	def assert[T](desc: String, t1: => T, t2: T) = if (t1 == t2) () else println(desc +" test failed: " + t1.toString + " is not the same as " + t2.toString)
 	
 	object Board2By2 extends SolverUI {
-		val width = 2
-		val height = 2
+		val dim = BoardDimension(2, 2)
 		
 		assert(allEdges.length, 6)
 		assert(allEdges.toString, "List(Edge(Pos(1,1),Pos(1,2)), Edge(Pos(1,1),Pos(2,1)), Edge(Pos(1,1),Pos(2,2)), Edge(Pos(1,2),Pos(2,1)), Edge(Pos(1,2),Pos(2,2)), Edge(Pos(2,1),Pos(2,2)))")
@@ -66,20 +65,20 @@ object Program extends SimpleSwingApplication  {
 		assert(l3BoardsForL2_1(0).hashEdges, List(0, 1, 5))
 		assert(l3BoardsForL2_1(1).hashEdges, List(0, 2, 5))
 		
-		assert(trianglesIndices(getTriangle(Pos(2,1), Pos(1,1), Pos(1,2), Player1)), 0)
-		assert(trianglesIndices(getTriangle(Pos(2,1), Pos(1,2), Pos(1,1), Player1)), 0)
-		assert(trianglesIndices(getTriangle(Pos(2,1), Pos(1,1), Pos(1,2), Player2)), 1)
-		assert(trianglesIndices(getTriangle(Pos(1,2), Pos(2,1), Pos(1,1), Player2)), 1)
-		assert(trianglesIndices(getTriangle(Pos(1,1), Pos(1,2), Pos(2,1), Player2)), 1)
+		assert(trianglesIndices(Triangle.getCanonicalTriangle(Pos(2,1), Pos(1,1), Pos(1,2), Player1)), 0)
+		assert(trianglesIndices(Triangle.getCanonicalTriangle(Pos(2,1), Pos(1,2), Pos(1,1), Player1)), 0)
+		assert(trianglesIndices(Triangle.getCanonicalTriangle(Pos(2,1), Pos(1,1), Pos(1,2), Player2)), 1)
+		assert(trianglesIndices(Triangle.getCanonicalTriangle(Pos(1,2), Pos(2,1), Pos(1,1), Player2)), 1)
+		assert(trianglesIndices(Triangle.getCanonicalTriangle(Pos(1,1), Pos(1,2), Pos(2,1), Player2)), 1)
 		
 		assert(nextBoards(l2Boards).length, 3)
 		
-		println(allCompletedBoards.length)
+		println("compl boards: " + allCompletedBoards.length)
+		println("compl boards: " + startingBoard.children.take(100))
 	}
 	
 	object Board3By3 extends SolverUI {
-		val width = 3
-		val height = 3
+		val dim = BoardDimension(3, 3)
 		
 		val e1 = Edge(Pos(1, 1), Pos(1, 2))
 		val e2 = Edge(Pos(2, 1), Pos(2, 2))
@@ -125,7 +124,7 @@ object Program extends SimpleSwingApplication  {
 		assert(rem.length, 1)
 		
 		val l2boards = nextBoards(startingBoard.nextBoards)
-		println(l2boards)
+		//println(l2boards)
 		
 		//assert(allCompletedBoards.length, 1134)
 	}
@@ -135,7 +134,7 @@ object Program extends SimpleSwingApplication  {
 	//Board3By3
 	
 	def top = new MainFrame {
-		title = "Hello, World!"
+		title = "Triangula"
 	    contents = Board3By3.ui
 	}
 }

@@ -26,17 +26,17 @@ trait SolverUI extends Solver {
 		val verOffset = 0
 		val margin = 1;
 		
-		def dim = math.sqrt(boardsToDraw.length).toInt + 1
-		def iRows = (for { i <- (0 until dim)} yield i) toList
-		def iColumns = (for { i <- (0 until dim)} yield i) toList
+		def uiDim = math.sqrt(boardsToDraw.length).toInt + 1
+		def iRows = (for { i <- (0 until uiDim)} yield i) toList
+		def iColumns = (for { i <- (0 until uiDim)} yield i) toList
 		
-		def boardWidth = preferredSize.width / dim
-		def boardHeight = preferredSize.height / dim
-		def pointHorOffset = (boardWidth - 2 * margin) / (width + 1)
-		def pointVerOffset = (boardHeight - 2 * margin) / (height + 1)
+		def boardWidth = preferredSize.width / uiDim
+		def boardHeight = preferredSize.height / uiDim
+		def pointHorOffset = (boardWidth - 2 * margin) / (dim.width + 1)
+		def pointVerOffset = (boardHeight - 2 * margin) / (dim.height + 1)
 		
 		def drawCell(g: Graphics2D, iRow: Int, iColumn: Int) = {
-			val boardIndex = iRow * dim + iColumn
+			val boardIndex = iRow * uiDim + iColumn
 			if (boardsToDraw.length > boardIndex) {
 				val board = boardsToDraw(boardIndex)
 				
@@ -63,7 +63,7 @@ trait SolverUI extends Solver {
 				g.drawString(t1, ((iColumn + 1) * boardWidth - fontMetrics.stringWidth(t1) - 4).toInt, ((iRow) * boardHeight).toInt + 12)
 				g.drawString("W: %d%% L:%d%% D:%d%%".format(p1, p2, pU), iColumn * boardWidth + 4, ((iRow + 1) * boardHeight).toInt - 4)
 
-				val p = (for (x <- (1 to width); y <- (1 to height)) yield (x, y)) toList
+				val p = (for (x <- (1 to dim.width); y <- (1 to dim.height)) yield (x, y)) toList
 					
 				def pointToX(p: Pos): Int = iColumn * boardWidth + margin + p.y * pointHorOffset
 				def pointToY(p: Pos): Int = iRow * boardHeight + margin + p.x * pointVerOffset
@@ -95,7 +95,7 @@ trait SolverUI extends Solver {
 		def getBoard(p: Point) : Board = {
 			val col = p.x / boardWidth
 			val row = p.y / boardHeight
-			val boardIndex = row * dim + col
+			val boardIndex = row * uiDim + col
 			if (boardsToDraw.length > boardIndex)
 				boardsToDraw(boardIndex)
 			else
