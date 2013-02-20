@@ -10,13 +10,13 @@ case object FlipVertically extends Symmetry
 case class Composite(symmetries: List[Symmetry]) extends Symmetry
 
 trait SymmetryMapper extends BoardDefinition {
-	def tranformPosition(symm: Symmetry): Pos => Pos = symm match {
+	def getMapper(symm: Symmetry): Pos => Pos = symm match {
 		case Identity         => p => p
 		case Diagonal         => p => Pos(p.y, p.x)
 		case FlipVertically   => p => Pos(dim.width - p.x + 1, p.y)
 		case FlipHorizontally => p => Pos(p.x, dim.height - p.y + 1)
 		case Composite(Nil)   => p => p
-		case Composite(list)  => list.foldLeft(tranformPosition(Identity))((acc, s) => p => acc(tranformPosition(s)(p)))
+		case Composite(list)  => list.foldLeft(getMapper(Identity))((acc, s) => acc.compose(getMapper(s)))
 	}
 	
 	/**
