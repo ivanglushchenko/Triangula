@@ -58,7 +58,7 @@ trait SolverUI extends Solver {
 				val font = new Font("Consolas", 1 , 10)
 				g.setFont(font)
 				val fontMetrics = g.getFontMetrics(font)
-				g.drawString("next: " + board.nextPlayer, iColumn * boardWidth + 4, ((iRow) * boardHeight).toInt + 12)
+				g.drawString("next: " + board.player, iColumn * boardWidth + 4, ((iRow) * boardHeight).toInt + 12)
 				val t1 = "score: " + board.player1Area.toInt.toString + ":" + board.player2Area.toInt.toString
 				g.drawString(t1, ((iColumn + 1) * boardWidth - fontMetrics.stringWidth(t1) - 4).toInt, ((iRow) * boardHeight).toInt + 12)
 				g.drawString("W: %d%% L:%d%% D:%d%%".format(p1, p2, pU), iColumn * boardWidth + 4, ((iRow + 1) * boardHeight).toInt - 4)

@@ -4,25 +4,6 @@ import scala.collection.immutable._
 
 trait SymmetryMapper extends BoardDefinition {
 	/**
-	 * Gets symmetrical edges according to a given mapping.
-	 */
-	def generateSymmetricEdgeMappings(allPointSymm: Map[Pos, Pos]): Map[Int, Int] =
-		all.edges.map(p => {
-			val s_from = allPointSymm(p.from)
-			val s_to = allPointSymm(p.to)
-			val s = if (all.edgesIndices.contains(Edge(s_from, s_to))) Edge(s_from, s_to) else Edge(s_to, s_from)
-			
-			if (p.isSame(s)) (all.edgesIndices(p), all.edgesIndices(p)) 
-			else (all.edgesIndices(p), all.edgesIndices(s))
-		}) toMap
-	
-	/**
-	 * Gets symmetrical triangles according to a given mapping.
-	 */
-	def generateSymmetricTriangleMappings(allPointSymm: Map[Pos, Pos]): Map[Int, Int] =
-		all.triangles.map(t => (all.trianglesIndices(t), all.trianglesIndices(t.map(allPointSymm)))) toMap
-
-	/**
 	 * These are all classes of symmetry the solver checks for during pruning.
 	 */
 	val symmetricMappers: List[Pos => Pos] = List(
@@ -34,12 +15,31 @@ trait SymmetryMapper extends BoardDefinition {
 	    p => Pos(p.y, dim.width - p.x + 1),
 	    p => Pos(dim.height - p.y + 1, p.x),
 	    p => Pos(dim.width - p.x + 1, dim.height - p.y + 1))
+	    
+	/**
+	 * Gets symmetrical edges according to a given mapping.
+	 */
+	def generateSymmetricEdgeMappings(allPointSymm: Map[Pos, Pos]): Map[Int, Int] =
+		allEdges.map(p => {
+			val s_from = allPointSymm(p.from)
+			val s_to = allPointSymm(p.to)
+			val s = if (allEdgesIndices.contains(Edge(s_from, s_to))) Edge(s_from, s_to) else Edge(s_to, s_from)
+			
+			if (p.isSame(s)) (allEdgesIndices(p), allEdgesIndices(p)) 
+			else (allEdgesIndices(p), allEdgesIndices(s))
+		}) toMap
+	
+	/**
+	 * Gets symmetrical triangles according to a given mapping.
+	 */
+	def generateSymmetricTriangleMappings(allPointSymm: Map[Pos, Pos]): Map[Int, Int] =
+		allTriangles.map(t => (allTrianglesIndices(t), allTrianglesIndices(t.map(allPointSymm)))) toMap
 
 	/**
 	 * Mappings between symmetrical edges and triangles. 
 	 */
 	lazy val symmetries = symmetricMappers
-		.map(f => all.points.map(p => (p, f(p))) toMap)
+		.map(f => allPoints.map(p => (p, f(p))) toMap)
 		.map(f => (generateSymmetricEdgeMappings(f), generateSymmetricTriangleMappings(f))) 
 
 	/**
