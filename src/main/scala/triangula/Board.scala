@@ -99,35 +99,12 @@ package triangula
 			children = if (p._2.isEmpty) allNextBoards else p._2
 			children
 		}
-		
+
 		/**
 		 * Gets scores - number of winning boards for each player.
 		 */
-		lazy val scores: Map[Player, Int] = {
-			if (isCompleted) {
-				if (player1Area > player2Area) List((Player1, 1), (Player2, 0), (PlayerUnknown, 0)) toMap
-				else if (player2Area > player1Area) List((Player1, 0), (Player2, 1), (PlayerUnknown, 0)) toMap
-				else List((Player1, 0), (Player2, 0), (PlayerUnknown, 1)) toMap
-			} else {
-				val f0: Map[Player, Int] = List((Player1, 0), (Player2, 0), (PlayerUnknown, 0)) toMap
-				def merge(map1: Map[Player, Int], map2: Map[Player, Int]): Map[Player, Int] = 
-					map1 ++ map2.map{ case (k,v) => k -> (v + map1.getOrElse(k,0)) }
-				val res = children.map(t => t.scores).fold(f0)((res, item) => merge(res, item))
-				res
-			}
-		}
+		lazy val score = Score(this)
 		
-		/**
-		 * Gets area occupied by a given player.
-		 */
-		def getArea(p: Player) = 
-			if (triangles.isEmpty) 0
-			else math.ceil(100 * triangles.filter(t => t.player == p).map(t => t.area).sum / ((definition.dim.width - 1) * (definition.dim.height - 1)))
-			
-		lazy val player1Area: Double = getArea(Player1)
-
-		lazy val player2Area: Double = getArea(Player2)
-			
 		def isCompleted: Boolean = nextEdges.isEmpty
 		
 		override def toString(): String = "Board: " + edges.toString

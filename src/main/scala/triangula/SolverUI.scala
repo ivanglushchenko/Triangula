@@ -51,15 +51,16 @@ trait SolverUI extends Solver {
 				path.lineTo(iColumn * boardWidth + margin, iRow * boardHeight + margin)
 				g.draw(path)
 			
-				val total = board.scores.map(t => t._2).sum toFloat
-				val p1 = math.round(100.0 * board.scores(Player1) / total)
-				val p2 = math.round(100.0 * board.scores(Player2) / total)
-				val pU = math.round(100.0 * board.scores(PlayerUnknown) / total)
+				val total = board.score.total
+				val p1 = math.round(100.0 * board.score.player1Score / total)
+				val p2 = math.round(100.0 * board.score.player2Score / total)
+				val pU = math.round(100.0 * board.score.drawScore / total)
+				
 				val font = new Font("Consolas", 1 , 10)
 				g.setFont(font)
 				val fontMetrics = g.getFontMetrics(font)
 				g.drawString("next: " + board.player, iColumn * boardWidth + 4, ((iRow) * boardHeight).toInt + 12)
-				val t1 = "score: " + board.player1Area.toInt.toString + ":" + board.player2Area.toInt.toString
+				val t1 = "score: " + board.score.player1Area.toInt.toString + ":" + board.score.player2Area.toInt.toString
 				g.drawString(t1, ((iColumn + 1) * boardWidth - fontMetrics.stringWidth(t1) - 4).toInt, ((iRow) * boardHeight).toInt + 12)
 				g.drawString("W: %d%% L:%d%% D:%d%%".format(p1, p2, pU), iColumn * boardWidth + 4, ((iRow + 1) * boardHeight).toInt - 4)
 
