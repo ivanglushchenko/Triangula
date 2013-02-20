@@ -28,7 +28,8 @@ package triangula
 		def extend(e: Edge): Board =
 			if (isValidEdge(e) == false) throw new Exception("invalid edge")
 			else {
-				val newTriangles = pointsFormingTriangle(e).map(p1 => Triangle.getCanonicalTriangle(e.from, e.to, p1, player))				
+				val newTriangles = pointsFormingTriangle(e).map(p1 => Triangle.getCanonicalTriangle(e.from, e.to, p1, player))
+				// Create a new board with respect to game's rules
 				new Board(
 					definition,
 					if (newTriangles.isEmpty) player.next() else player, 
@@ -49,6 +50,9 @@ package triangula
 		 */
 		def formsTriangle(e: Edge): Boolean = !pointsFormingTriangle(e).isEmpty
 		
+		/**
+		 * Gets points which form a triangle with the given edge. 
+		 */
 		def pointsFormingTriangle(e: Edge): List[Pos] = {
 			def getPointReachableFromPoint(p: Pos) =
 				(for {

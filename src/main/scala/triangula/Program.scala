@@ -12,6 +12,9 @@ object Program extends SimpleSwingApplication  {
 	
 	def assert[T](desc: String, t1: => T, t2: T) = if (t1 == t2) () else println(desc +" test failed: " + t1.toString + " is not the same as " + t2.toString)
 	
+	/**
+	 * Poor's man unit tests for 2-by-2 board.
+	 */
 	object Board2By2 extends SolverUI {
 		val dim = BoardDimension(2, 2)
 		
@@ -77,6 +80,9 @@ object Program extends SimpleSwingApplication  {
 		println("compl boards: " + startingBoard.children.take(100))
 	}
 	
+	/**
+	 * Poor's man unit tests for 3-by-3 board.
+	 */
 	object Board3By3 extends SolverUI {
 		val dim = BoardDimension(3, 3)
 		

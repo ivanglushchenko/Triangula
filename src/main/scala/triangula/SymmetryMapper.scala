@@ -4,34 +4,42 @@ import scala.collection.immutable._
 
 sealed abstract class Symmetry
 case object Identity extends Symmetry
-case object Diagonal extends Symmetry
-case object FlipHorizontally extends Symmetry
-case object FlipVertically extends Symmetry
+case object RotateDiagonally extends Symmetry
+case object RotateHorizontally extends Symmetry
+case object RotateVertically extends Symmetry
 case class Composite(symmetries: List[Symmetry]) extends Symmetry
+object Composite {
+	def apply(s1: Symmetry, s2: Symmetry): Composite = Composite(List(s1, s2))
+	def apply(s1: Symmetry, s2: Symmetry, s3: Symmetry): Composite = Composite(List(s1, s2, s3))
+}
 
 trait SymmetryMapper extends BoardDefinition {
+	/**
+	 * Converts a symmetry to a mapping function.
+	 */
 	def getMapper(symm: Symmetry): Pos => Pos = symm match {
-		case Identity         => p => p
-		case Diagonal         => p => Pos(p.y, p.x)
-		case FlipVertically   => p => Pos(dim.width - p.x + 1, p.y)
-		case FlipHorizontally => p => Pos(p.x, dim.height - p.y + 1)
-		case Composite(Nil)   => p => p
-		case Composite(list)  => list.foldLeft(getMapper(Identity))((acc, s) => acc.compose(getMapper(s)))
+		case Identity           => p => p
+		case RotateDiagonally   => p => Pos(p.y, p.x)
+		case RotateHorizontally => p => Pos(p.x, dim.height - p.y + 1)
+		case RotateVertically   => p => Pos(dim.width - p.x + 1, p.y)
+		case Composite(Nil)     => p => p
+		case Composite(list)    => list.foldLeft(getMapper(Identity))((acc, s) => acc.compose(getMapper(s)))
 	}
 	
 	/**
 	 * These are all classes of symmetry the solver checks for during pruning.
 	 */
-	val symmetricMappers: List[Pos => Pos] = List(
-	    p => p,
-	    p => Pos(p.y, p.x),
-	    p => Pos(dim.width - p.x + 1, p.y),
-	    p => Pos(p.x, dim.height - p.y + 1),
-	    p => Pos(dim.height - p.y + 1, dim.width - p.x + 1),
-	    p => Pos(p.y, dim.width - p.x + 1),
-	    p => Pos(dim.height - p.y + 1, p.x),
-	    p => Pos(dim.width - p.x + 1, dim.height - p.y + 1))
-	    
+	val symmetricMappers = List(
+		Identity,
+		RotateDiagonally,
+		RotateHorizontally,
+		RotateVertically,
+		Composite(RotateHorizontally, RotateVertically),
+		Composite(RotateDiagonally, RotateHorizontally),
+		Composite(RotateDiagonally, RotateVertically),
+		Composite(RotateDiagonally, RotateHorizontally, RotateVertically))
+		.map(getMapper)
+	
 	/**
 	 * Gets symmetrical edges according to a given mapping.
 	 */
@@ -68,6 +76,7 @@ trait SymmetryMapper extends BoardDefinition {
 		def compactify(l: List[Board], mappings: (Map[Int, Int], Map[Int, Int])): List[Board] = {
 			val sets = l groupBy(t => t.hash.map(mappings)) map(t => t._2.sortWith((b1, b2) => b1.hash < b2.hash)) toList
 			
+			// if we prune some boards, we have to update parent <-> child relationships
 			for { symBoards <- sets; if !symBoards.tail.isEmpty } {
 				for { boardToBeRemoved <- symBoards.tail} {
 					symBoards.head.parents = boardToBeRemoved.parents ::: symBoards.head.parents
