@@ -6,7 +6,7 @@ import scala.collection.immutable._
  * Contains logic for solving the puzzle. 
  */
 trait Solver extends SymmetryMapper {
-	lazy val startingBoard: Board = Board.Board()
+	lazy val startingBoard: Board = Board()
 	
 	/**
 	 * Gets boards generated from the given list of boards.

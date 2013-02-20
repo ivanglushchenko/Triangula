@@ -9,42 +9,15 @@ import scala.collection.immutable.Map
 trait BoardDefinition {
 	val dim: BoardDimension
 	
-	lazy val allPoints = 
-		(for {
-			x <- (1 to dim.width)
-			y <- (1 to dim.height)
-		} yield Pos(x, y)) toList
-		
-	def generateEdges(points: List[Pos]): List[Edge] =
-		for {
-			p1 <- points
-			p2 <- points
-			if p1 != p2
-			if p1.x < p2.x || (p1.x == p2.x && p1.y < p2.y) 
-		} yield Edge(p1, p2)
-		
-	lazy val allEdges = generateEdges(allPoints) toList
-			
-	lazy val edgesIndices = allEdges.map(t => (t, allEdges.indexOf(t))) toMap
-
-	lazy val allTriangles = 
-		(for {
-			p1 <- allPoints
-			p2 <- allPoints
-			p3 <- allPoints
-			if p1 != p2
-			if p1 != p3
-			if p2 != p3
-			if p1 < p2
-			if p2 < p3
-		} yield (p1, p2, p3)) flatMap(t => List(Triangle.getCanonicalTriangle(t._1, t._2, t._3, Player1), Triangle.getCanonicalTriangle(t._1, t._2, t._3, Player2)))
-	
-	lazy val trianglesIndices = allTriangles.map(t => (t, allTriangles.indexOf(t))) toMap
+	/**
+	 * Contains all points, all edges, all triangles and all indices.
+	 */
+	lazy val all = BoardState(dim)
 	
 	/**
 	 * Represents game board.
 	 */
-	class Board(val nextPlayer: Player, val points: List[Pos], val edges: List[Edge], val triangles: List[Triangle], val hashEdges: List[Int], val hashTriangles: List[Int], val parentBoard: Board) {
+	class Board(val nextPlayer: Player, val state: BoardState, val points: List[Pos], val edges: List[Edge], val triangles: List[Triangle], val hashEdges: List[Int], val hashTriangles: List[Int], val parentBoard: Board) {
 		/**
 		 * Mutable state which keeps track of parent <-> child relationships.
 		 * During pruning lots of nodes are removed from the solutions tree, which
@@ -68,10 +41,10 @@ trait BoardDefinition {
 				}
 				
 				val newTriangles = pointsFormingTriangle(e).map(p1 => Triangle.getCanonicalTriangle(e.from, e.to, p1, nextPlayer))
-				val newEdgesHash = insert(hashEdges, edgesIndices(e))
-				val newTrianglesHash = newTriangles.map(t => trianglesIndices(t)) ::: hashTriangles
+				val newEdgesHash = insert(hashEdges, all.edgesIndices(e))
+				val newTrianglesHash = newTriangles.map(t => all.trianglesIndices(t)) ::: hashTriangles
 				
-				new Board(if (newTriangles.isEmpty) { if (nextPlayer == Player1) Player2 else Player1 } else nextPlayer, if (newTriangles.isEmpty) points else points.filter(p => newTriangles.forall(t => !t.contains(p))), e :: edges, newTriangles ::: triangles, newEdgesHash, newTrianglesHash, this)
+				new Board(if (newTriangles.isEmpty) { if (nextPlayer == Player1) Player2 else Player1 } else nextPlayer, state, if (newTriangles.isEmpty) points else points.filter(p => newTriangles.forall(t => !t.contains(p))), e :: edges, newTriangles ::: triangles, newEdgesHash, newTrianglesHash, this)
 			}
 		}
 		
@@ -119,7 +92,7 @@ trait BoardDefinition {
 				List(Edge(Pos(1, 1), Pos(1, 2)), Edge(Pos(1, 1), Pos(2, 2)), Edge(Pos(1, 1), Pos(2, 3)), Edge(Pos(1, 2), Pos(2, 1)))
 			
 			case _ => {
-				val allEdges = generateEdges(points) filter(isValidEdge) toList
+				val allEdges = Edge.generateFromPoints(points) filter(isValidEdge) toList
 				val edgesFormingTriangles = allEdges filter (t => formsTriangle(t))
 				if (edgesFormingTriangles.isEmpty) allEdges else edgesFormingTriangles
 			}
@@ -169,8 +142,8 @@ trait BoardDefinition {
 	}
 	
 	object Board {
-		def Board(): Board = {
-			new Board(Player1, allPoints, List(), List(), List(), List(), null)
+		def apply(): Board = {
+			new Board(Player1, BoardState(all.points), all.points, List(), List(), List(), List(), null)
 		}
 	}
 	

@@ -4,6 +4,9 @@ package triangula
  * Represents a single edge on a board.
  */
 case class Edge(from: Pos, to: Pos){
+	/**
+	 * Checks if two edges intersect one another.
+	 */
 	def intersect(e: Edge): Boolean = 
 		if ((from == e.from && to == e.to) || (from == e.to && to == e.from)) true
 		else if ((from == e.from && to != e.to) || (from != e.from && to == e.to) || (from == e.to && to != e.from) || (from != e.to && to == e.from)) false
@@ -20,6 +23,9 @@ case class Edge(from: Pos, to: Pos){
 			}
 		}
 	
+	/**
+	 * Checks if the edge contains the given point.
+	 */
 	def contains(p: Pos): Boolean =
 		if (p == from || p == to) false
 		else {
@@ -42,4 +48,14 @@ case class Edge(from: Pos, to: Pos){
 		}
 	
 	def isSame(e: Edge) = (from == e.from && to == e.to) || (from == e.to && to == e.from)
+}
+
+object Edge {
+	def generateFromPoints(points: List[Pos]): List[Edge] =
+		for {
+			p1 <- points
+			p2 <- points
+			if p1 != p2
+			if p1.x < p2.x || (p1.x == p2.x && p1.y < p2.y) 
+		} yield Edge(p1, p2)
 }

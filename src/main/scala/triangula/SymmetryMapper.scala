@@ -7,20 +7,20 @@ trait SymmetryMapper extends BoardDefinition {
 	 * Gets symmetrical edges according to a given mapping.
 	 */
 	def generateSymmetricEdgeMappings(allPointSymm: Map[Pos, Pos]): Map[Int, Int] =
-		allEdges.map(p => {
+		all.edges.map(p => {
 			val s_from = allPointSymm(p.from)
 			val s_to = allPointSymm(p.to)
-			val s = if (edgesIndices.contains(Edge(s_from, s_to))) Edge(s_from, s_to) else Edge(s_to, s_from)
+			val s = if (all.edgesIndices.contains(Edge(s_from, s_to))) Edge(s_from, s_to) else Edge(s_to, s_from)
 			
-			if (p.isSame(s)) (edgesIndices(p), edgesIndices(p)) 
-			else (edgesIndices(p), edgesIndices(s))
+			if (p.isSame(s)) (all.edgesIndices(p), all.edgesIndices(p)) 
+			else (all.edgesIndices(p), all.edgesIndices(s))
 		}) toMap
 	
 	/**
 	 * Gets symmetrical triangles according to a given mapping.
 	 */
 	def generateSymmetricTriangleMappings(allPointSymm: Map[Pos, Pos]): Map[Int, Int] =
-		allTriangles.map(t => (trianglesIndices(t), trianglesIndices(t.map(allPointSymm)))) toMap
+		all.triangles.map(t => (all.trianglesIndices(t), all.trianglesIndices(t.map(allPointSymm)))) toMap
 
 	/**
 	 * These are all classes of symmetry the solver checks for during pruning.
@@ -39,7 +39,7 @@ trait SymmetryMapper extends BoardDefinition {
 	 * Mappings between symmetrical edges and triangles. 
 	 */
 	lazy val symmetries = symmetricMappers
-		.map(f => allPoints.map(p => (p, f(p))) toMap)
+		.map(f => all.points.map(p => (p, f(p))) toMap)
 		.map(f => (generateSymmetricEdgeMappings(f), generateSymmetricTriangleMappings(f))) 
 
 	/**

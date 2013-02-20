@@ -15,10 +15,10 @@ object Program extends SimpleSwingApplication  {
 	object Board2By2 extends SolverUI {
 		val dim = BoardDimension(2, 2)
 		
-		assert(allEdges.length, 6)
-		assert(allEdges.toString, "List(Edge(Pos(1,1),Pos(1,2)), Edge(Pos(1,1),Pos(2,1)), Edge(Pos(1,1),Pos(2,2)), Edge(Pos(1,2),Pos(2,1)), Edge(Pos(1,2),Pos(2,2)), Edge(Pos(2,1),Pos(2,2)))")
+		assert(all.edges.length, 6)
+		assert(all.edges.toString, "List(Edge(Pos(1,1),Pos(1,2)), Edge(Pos(1,1),Pos(2,1)), Edge(Pos(1,1),Pos(2,2)), Edge(Pos(1,2),Pos(2,1)), Edge(Pos(1,2),Pos(2,2)), Edge(Pos(2,1),Pos(2,2)))")
 		
-		assert(edgesIndices.toString, "Map(Edge(Pos(2,1),Pos(2,2)) -> 5, Edge(Pos(1,1),Pos(2,1)) -> 1, Edge(Pos(1,2),Pos(2,2)) -> 4, Edge(Pos(1,1),Pos(1,2)) -> 0, Edge(Pos(1,2),Pos(2,1)) -> 3, Edge(Pos(1,1),Pos(2,2)) -> 2)")
+		assert(all.edgesIndices.toString, "Map(Edge(Pos(2,1),Pos(2,2)) -> 5, Edge(Pos(1,1),Pos(2,1)) -> 1, Edge(Pos(1,2),Pos(2,2)) -> 4, Edge(Pos(1,1),Pos(1,2)) -> 0, Edge(Pos(1,2),Pos(2,1)) -> 3, Edge(Pos(1,1),Pos(2,2)) -> 2)")
 		
 		val s1 = startingBoard extend (Edge(Pos(1, 1), Pos(1, 2)))
 		assert(s1.nextEdges.length, 5)
@@ -65,11 +65,11 @@ object Program extends SimpleSwingApplication  {
 		assert(l3BoardsForL2_1(0).hashEdges, List(0, 1, 5))
 		assert(l3BoardsForL2_1(1).hashEdges, List(0, 2, 5))
 		
-		assert(trianglesIndices(Triangle.getCanonicalTriangle(Pos(2,1), Pos(1,1), Pos(1,2), Player1)), 0)
-		assert(trianglesIndices(Triangle.getCanonicalTriangle(Pos(2,1), Pos(1,2), Pos(1,1), Player1)), 0)
-		assert(trianglesIndices(Triangle.getCanonicalTriangle(Pos(2,1), Pos(1,1), Pos(1,2), Player2)), 1)
-		assert(trianglesIndices(Triangle.getCanonicalTriangle(Pos(1,2), Pos(2,1), Pos(1,1), Player2)), 1)
-		assert(trianglesIndices(Triangle.getCanonicalTriangle(Pos(1,1), Pos(1,2), Pos(2,1), Player2)), 1)
+		assert(all.trianglesIndices(Triangle.getCanonicalTriangle(Pos(2,1), Pos(1,1), Pos(1,2), Player1)), 0)
+		assert(all.trianglesIndices(Triangle.getCanonicalTriangle(Pos(2,1), Pos(1,2), Pos(1,1), Player1)), 0)
+		assert(all.trianglesIndices(Triangle.getCanonicalTriangle(Pos(2,1), Pos(1,1), Pos(1,2), Player2)), 1)
+		assert(all.trianglesIndices(Triangle.getCanonicalTriangle(Pos(1,2), Pos(2,1), Pos(1,1), Player2)), 1)
+		assert(all.trianglesIndices(Triangle.getCanonicalTriangle(Pos(1,1), Pos(1,2), Pos(2,1), Player2)), 1)
 		
 		assert(nextBoards(l2Boards).length, 3)
 		
