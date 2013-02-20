@@ -17,9 +17,9 @@ trait Solver extends SymmetryMapper {
 	/**
 	 * Generates a stream of boards.
 	 */
-	def next(boards: List[Board]): Stream[Board] =
-		if (boards.isEmpty) Stream.Empty
-		else {
+	def next(boards: List[Board]): Stream[Board] = boards match {
+		case Nil => Stream.Empty
+		case _   => {
 			println("..generating " + (boards.head.edges.length + 1).toString + "-edge boards")
 			val list = nextBoards(boards)
 			println("..done, there are " + list.length.toString + " of them")
@@ -27,6 +27,7 @@ trait Solver extends SymmetryMapper {
 			if (list.isEmpty) Stream.Empty
 			else Stream.concat(list toStream, next(list))
 		}
+	}
 	
 	/**
 	 * A stream of all possible boards.

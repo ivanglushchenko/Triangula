@@ -2,7 +2,23 @@ package triangula
 
 import scala.collection.immutable._
 
+sealed abstract class Symmetry
+case object Identity extends Symmetry
+case object Diagonal extends Symmetry
+case object FlipHorizontally extends Symmetry
+case object FlipVertically extends Symmetry
+case class Composite(symmetries: List[Symmetry]) extends Symmetry
+
 trait SymmetryMapper extends BoardDefinition {
+	def tranformPosition(symm: Symmetry): Pos => Pos = symm match {
+		case Identity         => p => p
+		case Diagonal         => p => Pos(p.y, p.x)
+		case FlipVertically   => p => Pos(dim.width - p.x + 1, p.y)
+		case FlipHorizontally => p => Pos(p.x, dim.height - p.y + 1)
+		case Composite(Nil)   => p => p
+		case Composite(list)  => list.foldLeft(tranformPosition(Identity))((acc, s) => p => acc(tranformPosition(s)(p)))
+	}
+	
 	/**
 	 * These are all classes of symmetry the solver checks for during pruning.
 	 */
@@ -47,38 +63,16 @@ trait SymmetryMapper extends BoardDefinition {
 	 */
 	def removeSymmetricalBoards(list: List[Board]): List[Board] = {
 		/**
-		 * Checks if one hash is smaller than the other.
-		 */
-		def isSmaller(l1: List[Int], l2: List[Int]): Boolean = {
-			if (l1.isEmpty) false
-			else {
-				if (l1.head == l2.head) isSmaller(l1.tail, l2.tail)
-				else l1.head < l2.head 
-			}
-		}
-		
-		/**
-		 * Gets the smaller hash.
-		 */
-		def getLowerSymmHash(h1: List[Int], h2: List[Int], m1: Map[Int, Int], m2: Map[Int, Int]): (List[Int], List[Int]) = {
-			val h1s = h1 map(t => m1(t)) sortBy(t => t)
-			val h2s = h2 map(t => m2(t)) sortBy(t => t)
-			val r1 = if (isSmaller(h1, h1s)) h1 else h1s
-			val r2 = if (isSmaller(h2, h2s)) h2 else h2s
-			(r1, r2)
-		}
-		
-		/**
 		 * Given mappings for edges and triangles, removes duplicates from boards list.
 		 */
 		def compactify(l: List[Board], mappings: (Map[Int, Int], Map[Int, Int])): List[Board] = {
-			val sets = l groupBy(t => getLowerSymmHash(t.hashEdges, t.hashTriangles, mappings._1, mappings._2)) map(t => t._2.sortWith((b1, b2) => isSmaller(b1.hashEdges, b2.hashEdges))) toList
+			val sets = l groupBy(t => t.hash.map(mappings)) map(t => t._2.sortWith((b1, b2) => b1.hash < b2.hash)) toList
 			
 			for { symBoards <- sets; if !symBoards.tail.isEmpty } {
 				for { boardToBeRemoved <- symBoards.tail} {
 					symBoards.head.parents = boardToBeRemoved.parents ::: symBoards.head.parents
 					for { affectedParent <- boardToBeRemoved.parents} {
-						affectedParent.children = symBoards.head :: (affectedParent.children.filterNot(b => b == boardToBeRemoved))// - boardToBeRemoved)
+						affectedParent.children = symBoards.head :: (affectedParent.children.filterNot(b => b == boardToBeRemoved))
 					}
 				}
 			}

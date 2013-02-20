@@ -4,13 +4,12 @@ package triangula
 	 * Represents game board.
 	 */
 	class Board(
-		val player: Player,
 		val definition: BoardDefinition, 
+		val player: Player,
 		val points: List[Pos], 
 		val edges: List[Edge], 
 		val triangles: List[Triangle],
-		val hashEdges: List[Int],
-		val hashTriangles: List[Int], 
+		val hash: BoardHash, 
 		val parentBoard: Board) {
 	
 		/**
@@ -29,24 +28,14 @@ package triangula
 		def extend(e: Edge): Board =
 			if (isValidEdge(e) == false) throw new Exception("invalid edge")
 			else {
-				def insert(l: List[Int], i: Int): List[Int] = {
-					if (l.isEmpty) return List(i)
-					else if (l.head >= i) i :: l
-					else l.head :: insert(l.tail, i)
-				}
-				
-				val newTriangles = pointsFormingTriangle(e).map(p1 => Triangle.getCanonicalTriangle(e.from, e.to, p1, player))
-				val newEdgesHash = insert(hashEdges, definition.allEdgesIndices(e))
-				val newTrianglesHash = newTriangles.map(t => definition.allTrianglesIndices(t)) ::: hashTriangles
-				
+				val newTriangles = pointsFormingTriangle(e).map(p1 => Triangle.getCanonicalTriangle(e.from, e.to, p1, player))				
 				new Board(
+					definition,
 					if (newTriangles.isEmpty) player.next() else player, 
-					definition, 
 					if (newTriangles.isEmpty) points else points.filter(p => newTriangles.forall(t => !t.contains(p))), 
 					e :: edges, 
 					newTriangles ::: triangles, 
-					newEdgesHash, 
-					newTrianglesHash,
+					hash.addEdge(definition.allEdgesIndices(e)).addTriangles(newTriangles.map(t => definition.allTrianglesIndices(t))),
 					this)
 			}
 		
@@ -78,10 +67,7 @@ package triangula
 			} yield p1) toList
 		}
 		
-		lazy val hasTwoSideTriangles = {
-			val edgesFormingTriangles = nextEdges filter (t => formsTriangle(t))
-			!edgesFormingTriangles.isEmpty
-		}
+		lazy val hasTwoSideTriangles = !nextEdges.filter(t => formsTriangle(t)).isEmpty
 		
 		/**
 		 * Gets all valid edges which can be placed on the board.
@@ -146,13 +132,12 @@ package triangula
 	object Board {
 		def apply(definition: BoardDefinition): Board = {
 			new Board(
+				definition,
 				Player1,
-				definition, 
 				definition.allPoints,
 				List(),
 				List(),
-				List(),
-				List(),
+				BoardHash(),
 				null)
 		}
 	}

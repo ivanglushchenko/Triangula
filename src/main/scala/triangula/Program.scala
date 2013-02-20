@@ -57,13 +57,13 @@ object Program extends SimpleSwingApplication  {
 		val l2Boards = nextBoards(startingBoard.nextBoards)
 		assert("here", l2Boards.length, 2)
 		assert(l2Boards.toString(), "List(Board: List(Edge(Pos(1,1),Pos(1,2)), Edge(Pos(1,1),Pos(2,2))), Board: List(Edge(Pos(2,1),Pos(2,2)), Edge(Pos(1,1),Pos(1,2))))")
-		assert(l2Boards(0).hashEdges, List(0, 2))
-		assert(l2Boards(1).hashEdges, List(0, 5))
+		assert(l2Boards(0).hash.edges, List(0, 2))
+		assert(l2Boards(1).hash.edges, List(0, 5))
 		
 		val l3BoardsForL2_1 = nextBoards(List(l2Boards(1)))
 		assert(l3BoardsForL2_1.length, 2)
-		assert(l3BoardsForL2_1(0).hashEdges, List(0, 1, 5))
-		assert(l3BoardsForL2_1(1).hashEdges, List(0, 2, 5))
+		assert(l3BoardsForL2_1(0).hash.edges, List(0, 1, 5))
+		assert(l3BoardsForL2_1(1).hash.edges, List(0, 2, 5))
 		
 		assert(allTrianglesIndices(Triangle.getCanonicalTriangle(Pos(2,1), Pos(1,1), Pos(1,2), Player1)), 0)
 		assert(allTrianglesIndices(Triangle.getCanonicalTriangle(Pos(2,1), Pos(1,2), Pos(1,1), Player1)), 0)
@@ -124,9 +124,7 @@ object Program extends SimpleSwingApplication  {
 		assert(rem.length, 1)
 		
 		val l2boards = nextBoards(startingBoard.nextBoards)
-		//println(l2boards)
-		
-		//assert(allCompletedBoards.length, 1134)
+
 	}
 
 	
