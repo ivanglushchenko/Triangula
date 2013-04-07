@@ -125,3 +125,11 @@ trait SolverUI extends Solver {
     }
   }
 }
+
+object SolverForBoard2By2 extends SolverUI {
+  val dim = BoardDimension(2, 2)
+}
+
+object SolverForBoard3By3 extends SolverUI {
+  val dim = BoardDimension(3, 3)
+}

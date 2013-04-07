@@ -1,0 +1,6 @@
+[0m[[0mdebug[0m] [0mRunning Test triangula.Board3By3SolverSuite : subclass(false, org.scalatest.Suite) with arguments [0m
+[0m[[0mdebug[0m] [0mRunning Test triangula.Board2By2SolverSuite : subclass(false, org.scalatest.Suite) with arguments [0m
+[0m[[0minfo[0m] [0mPassed: : Total 21, Failed 0, Errors 0, Passed 21, Skipped 0[0m
+[0m[[0mdebug[0m] [0mPassed tests:[0m
+[0m[[0mdebug[0m] [0m	triangula.Board2By2SolverSuite[0m
+[0m[[0mdebug[0m] [0m	triangula.Board3By3SolverSuite[0m

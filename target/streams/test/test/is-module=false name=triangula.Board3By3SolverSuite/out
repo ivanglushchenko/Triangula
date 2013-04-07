@@ -1,0 +1,9 @@
+[0m[[0minfo[0m] [0m[32mBoard3By3SolverSuite:[0m[0m
+[0m[[0minfo[0m] [0m[32m- 3x3 board: edges intersection[0m[0m
+[0m[[0minfo[0m] [0m[32m- 3x3 board: num of points[0m[0m
+[0m[[0minfo[0m] [0m[32m- 3x3 board: valid edge[0m[0m
+[0m[[0minfo[0m] [0m[32m- 3x3 board: forms triangle[0m[0m
+[0m[[0minfo[0m] [0m[32m- 3x3 board: triangles[0m[0m
+[0m[[0minfo[0m] [0m[32m- 3x3 board: nextBoards[0m[0m
+[0m[[0minfo[0m] [0m[32m- 3x3 board: extend board[0m[0m
+[0m[[0minfo[0m] [0m[32m- 3x3 board: remove symmetrical boards[0m[0m

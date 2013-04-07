@@ -1,0 +1,14 @@
+[0m[[0minfo[0m] [0m[32mSolverSuite:[0m[0m
+[0m[[0minfo[0m] [0m[32m- 2x2 board: number of edges = 6[0m[0m
+[0m[[0minfo[0m] [0m[32m- 2x2 board: check edges[0m[0m
+[0m[[0minfo[0m] [0m[32m- 2x2 board: check edges indices[0m[0m
+[0m[[0minfo[0m] [0m[32m- 2x2 board: extend[0m[0m
+[0m[[0minfo[0m] [0m[32m- 2x2 board: extend multiple times[0m[0m
+[0m[[0minfo[0m] [0m[32m- 2x2 board: check intersect[0m[0m
+[0m[[0minfo[0m] [0m[32m- 2x2 board: check extend() result[0m[0m
+[0m[[0minfo[0m] [0m[32m- 2x2 board: check isCompleted()[0m[0m
+[0m[[0minfo[0m] [0m[32m- 2x2 board: check 2 first items of the board stream[0m[0m
+[0m[[0minfo[0m] [0m[32m- 2x2 board: check nextboards[0m[0m
+[0m[[0minfo[0m] [0m[32m- 2x2 board: check nextboards 2[0m[0m
+[0m[[0minfo[0m] [0m[32m- 2x2 board: check canonical triangles[0m[0m
+[0m[[0minfo[0m] [0m[32m- 2x2 board: completed boards[0m[0m

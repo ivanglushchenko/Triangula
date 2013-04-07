@@ -6,3 +6,26 @@ quit
 compile
 compile -deprecation
 compile
+test
+compile
+test
+compile
+test
+compile
+test
+exit
+compile
+test
+exit
+compile
+test
+help
+about
+quit
+exit
+compile
+test
+compile
+test
+compile
+test

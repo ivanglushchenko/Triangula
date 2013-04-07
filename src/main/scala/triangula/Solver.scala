@@ -41,9 +41,9 @@ trait Solver extends SymmetryMapper {
 
   lazy val allCompletedBoards = {
     val boards = allCompletedBoardsStream.take(10000).toList
-    println("..calc scores")
+    //println("..calc scores")
     startingBoard.score
-    println("..done")
+    //println("..done")
     boards
   }
 }
