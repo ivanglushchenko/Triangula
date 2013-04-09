@@ -13,9 +13,9 @@ case class Triangle(p1: Pos, p2: Pos, p3: Pos, player: Player) {
     math.sqrt(s * (s - l1) * (s - l2) * (s - l3))
   }
 
-  def dot(v1: (Int, Int), v2: (Int, Int)): Double = v1._1 * v2._1 + v1._2 * v2._2
-
   def contains(p: Pos): Boolean = {
+    def dot(v1: (Int, Int), v2: (Int, Int)): Double = v1._1 * v2._1 + v1._2 * v2._2
+    
     val v0 = p2 - p1
     val v1 = p3 - p1
     val v2 = p - p1
@@ -41,19 +41,7 @@ object Triangle {
    * returns triangle ABC for any of the combinations of points.
    */
   def getCanonicalTriangle(p1: Pos, p2: Pos, p3: Pos, p: Player): Triangle = {
-    val s1 =
-      if (p1 < p2 && p1 < p3) p1
-      else if (p2 < p1 && p2 < p3) p2
-      else p3
-    val s3 =
-      if (p1 > p2 && p1 > p3) p1
-      else if (p2 > p1 && p2 > p3) p2
-      else p3
-    val s2 =
-      if (p1 != s1 && p1 != s3) p1
-      else if (p2 != s1 && p2 != s3) p2
-      else p3
-    if (s1 == s2 || s1 == s3 || s2 == s3) throw new Exception("bad triangle")
-    new Triangle(s1, s2, s3, p)
+    val (first :: second :: third :: _) = List(p1, p2, p3).sorted
+    new Triangle(first, second, third, p)
   }
 }

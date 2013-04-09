@@ -47,10 +47,12 @@ case class Edge(from: Pos, to: Pos) {
     }
 
   def isSame(e: Edge) = (from == e.from && to == e.to) || (from == e.to && to == e.from)
+  
+  def reverse() = Edge(to, from)
 }
 
 object Edge {
-  def generateFromPoints(points: List[Pos]): List[Edge] =
+  def fromPoints(points: List[Pos]): List[Edge] =
     for {
       p1 <- points
       p2 <- points

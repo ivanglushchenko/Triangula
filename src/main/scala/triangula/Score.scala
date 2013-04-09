@@ -9,9 +9,9 @@ class Score(board: Board) {
   val player2Area = getArea(board, Player2)
 
   val scores: Map[Player, Int] = (board.isCompleted, player1Area.compare(player2Area)) match {
-    case (true, 1) => add(Player1)
+    case (true, 1)  => add(Player1)
     case (true, -1) => add(Player2)
-    case (true, 0) => add(PlayerUndefined)
+    case (true, 0)  => add(PlayerUndefined)
     case _ => {
       def merge(map1: Map[Player, Int], map2: Map[Player, Int]): Map[Player, Int] =
         map1 ++ map2.map { case (k, v) => k -> (v + map1.getOrElse(k, 0)) }
@@ -19,7 +19,7 @@ class Score(board: Board) {
     }
   }
 
-  def add(p: Player): Map[Player, Int] = Score.emptyMap() updated (p, 1)
+  def add(p: Player): Map[Player, Int] = Score.emptyMap updated (p, 1)
 
   /**
    * Gets area occupied by a given player.
@@ -28,7 +28,7 @@ class Score(board: Board) {
     if (board.triangles.isEmpty) 0
     else math.ceil(100 * board.triangles.filter(t => t.player == p).map(t => t.area).sum / ((board.definition.dim.width - 1) * (board.definition.dim.height - 1)))
 
-  lazy val total = scores.map(t => t._2).sum toFloat
+  lazy val total = scores.map(_._2).sum toFloat
   lazy val player1Score = scores(Player1)
   lazy val player2Score = scores(Player2)
   lazy val drawScore = scores(PlayerUndefined)

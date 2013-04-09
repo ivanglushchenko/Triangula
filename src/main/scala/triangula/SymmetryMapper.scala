@@ -22,11 +22,11 @@ trait SymmetryMapper extends BoardDefinition {
    * Converts a symmetry to a mapping function.
    */
   def getMapper(symm: Symmetry): Pos => Pos = symm match {
-    case Identity => p => p
-    case RotateDiagonally => p => Pos(p.y, p.x)
+    case Identity =>           p => p
+    case RotateDiagonally =>   p => Pos(p.y, p.x)
     case RotateHorizontally => p => Pos(p.x, dim.height - p.y + 1)
-    case RotateVertically => p => Pos(dim.width - p.x + 1, p.y)
-    case Composite(Nil) => p => p
+    case RotateVertically =>   p => Pos(dim.width - p.x + 1, p.y)
+    case Composite(Nil) =>     p => p
     case Composite(list) => list.foldLeft(getMapper(Identity))((acc, s) => acc.compose(getMapper(s)))
   }
 
@@ -47,15 +47,17 @@ trait SymmetryMapper extends BoardDefinition {
   /**
    * Gets symmetrical edges according to a given mapping.
    */
-  def generateSymmetricEdgeMappings(allPointSymm: Map[Pos, Pos]): Map[Int, Int] =
+  def generateSymmetricEdgeMappings(allPointSymm: Map[Pos, Pos]): Map[Int, Int] = {
+    def mapEdge(e: Edge) = {
+      val mappedEdge = Edge(allPointSymm(e.from), allPointSymm(e.to))
+      if (allEdgesIndices.contains(mappedEdge)) mappedEdge else mappedEdge.reverse
+    }
+    
     allEdges.map(p => {
-      val s_from = allPointSymm(p.from)
-      val s_to = allPointSymm(p.to)
-      val s = if (allEdgesIndices.contains(Edge(s_from, s_to))) Edge(s_from, s_to) else Edge(s_to, s_from)
-
-      if (p.isSame(s)) (allEdgesIndices(p), allEdgesIndices(p))
-      else (allEdgesIndices(p), allEdgesIndices(s))
+      val s = mapEdge(p)
+      (allEdgesIndices(p), if (p.isSame(s)) allEdgesIndices(p) else allEdgesIndices(s))
     }) toMap
+  }
 
   /**
    * Gets symmetrical triangles according to a given mapping.
@@ -78,7 +80,7 @@ trait SymmetryMapper extends BoardDefinition {
      * Given mappings for edges and triangles, removes duplicates from boards list.
      */
     def compactify(l: List[Board], mappings: (Map[Int, Int], Map[Int, Int])): List[Board] = {
-      val sets = l groupBy (t => t.hash.map(mappings)) map (t => t._2.sortWith((b1, b2) => b1.hash < b2.hash)) toList
+      val sets = l groupBy (t => t.hash.map(mappings)) map (t => t._2.sortWith(_.hash < _.hash)) toList
 
       // if we prune some boards, we have to update parent <-> child relationships
       for { symBoards <- sets; if !symBoards.tail.isEmpty } {
@@ -90,7 +92,7 @@ trait SymmetryMapper extends BoardDefinition {
         }
       }
 
-      sets map (t => t.head)
+      sets map (_.head)
     }
 
     symmetries.foldLeft(list)((acc, mapping) => compactify(acc, mapping))

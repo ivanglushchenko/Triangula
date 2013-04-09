@@ -15,7 +15,7 @@ trait BoardDefinition {
       y <- (1 to dim.height)
     } yield Pos(x, y)) toList
 
-  lazy val allEdges = Edge.generateFromPoints(allPoints)
+  lazy val allEdges = Edge fromPoints allPoints
 
   lazy val allEdgesIndices = allEdges.map(t => (t, allEdges.indexOf(t))) toMap
 
@@ -32,10 +32,4 @@ trait BoardDefinition {
     } yield (p1, p2, p3)) flatMap (t => List(Triangle.getCanonicalTriangle(t._1, t._2, t._3, Player1), Triangle.getCanonicalTriangle(t._1, t._2, t._3, Player2)))
     
   lazy val allTrianglesIndices = allTriangles.map(t => (t, allTriangles.indexOf(t))) toMap
-
-  def onDebug(l: List[Board])(f: Board => Unit) {
-    val res = l.filter(b => b.toString() == "Board: List(Edge(Pos(1,2),Pos(2,3)), Edge(Pos(1,1),Pos(2,2)))")
-    if (!res.isEmpty)
-      f(res.head)
-  }
 }
